@@ -1,6 +1,9 @@
-import BackToHub from "@/components/BackToHub";
-import { TokenData } from "@/types/TokenData";
 import React, { type FC } from "react";
+
+import styles from "@/styles/Home.module.css";
+import { TokenData } from "@/types/TokenData";
+import BackToHub from "@/components/BackToHub";
+import { useTokenMetadata } from "@/hooks/useTokenMetadatas";
 
 const TokenCard: FC<TokenData> = (token) => {
     let createDate = null;
@@ -63,15 +66,41 @@ const TokenCard: FC<TokenData> = (token) => {
 };
 
 function FanTokensListPage() {
+    const { message, tokens, loading } = useTokenMetadata();
+
+    if (loading)
     return (
-        <div>
-            <h1 className="my-8 text-center text-3xl font-bold  ">
+        <main className={styles.main}>
+            <p>Loading...</p>
+        </main>
+    );
+
+    if (message)
+    return (
+        <main className={styles.main}>
+            <p>{message}</p>
+            <BackToHub />
+        </main>
+    )
+
+    return (
+        <main className={styles.main}>
+            <h1 className="my-8 text-center text-3xl font-bold">
                 Fan Tokens
             </h1>
-            <div className=" mx-4 my-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch"></div>
-
+            <div className=" mx-4 my-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                {
+                    tokens?.length > 1 && tokens.map((token, id) => {
+                        return (
+                            <div className="w-full h-full" key={id}>
+                                <TokenCard {...token} />
+                            </div>
+                        );
+                    })
+                }
+            </div>
             <BackToHub />
-        </div>
+        </main>
     );
 }
 
