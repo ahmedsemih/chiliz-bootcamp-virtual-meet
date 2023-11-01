@@ -1,7 +1,10 @@
-import BackToHub from "@/components/BackToHub";
-import { TokenBalance } from "@/types/TokenBalance";
 import React, { type FC } from "react";
+
 import styles from "@/styles/Home.module.css";
+import BackToHub from "@/components/BackToHub";
+import { useBalances } from "@/hooks/useBalances";
+import { TokenBalance } from "@/types/TokenBalance";
+import { formatBalance } from "@/util/formatBalance";
 
 const TokenCard: FC<TokenBalance> = (token) => {
     return (
@@ -45,23 +48,49 @@ const TokenCard: FC<TokenBalance> = (token) => {
 };
 
 function BalancesPage() {
+    const { message, tokenBalances, loading, nativeBalance } = useBalances();
+
+    if (message)
+    return (
+        <main className={styles.main}>
+            <p>{message}</p>
+            <BackToHub />
+        </main>
+    );
+
     return (
         <main className={styles.main}>
             <div className={styles.center}>
                 <div>
-                    <h1 className="my-8 text-center text-3xl font-bold  ">
+                    <h1 className="my-8 text-center text-3xl font-bold">
                         My Tokens
                     </h1>
 
-                    <div>
-                        <h2 className="my-8 text-center text-xl font-bold  ">
-                            {/* {`Native Balance is ${formatBalance(
+                    {loading ? (
+                        <div>Loading Your Balances...</div>
+                    ) : (
+                        <div>
+                            <h2 className="my-8 text-center text-xl font-bold">
+                                {`Native Balance is ${formatBalance(
                                     nativeBalance?.balance
-                                )} `} */}
-                        </h2>
-                        <div className=" mx-4 my-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch"></div>
-                    </div>
-
+                                )} `}
+                            </h2>
+                            <div className=" mx-4 my-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                                {tokenBalances &&
+                                    Array.isArray(tokenBalances) &&
+                                    tokenBalances.map((token, id) => {
+                                        return (
+                                            <div
+                                                className="w-full h-full"
+                                                key={id}
+                                            >
+                                                <TokenCard {...token} />
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+                        </div>
+                    )}
                     <BackToHub />
                 </div>
             </div>
